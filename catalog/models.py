@@ -8,7 +8,7 @@ class Category(models.Model):
     description = models.TextField(verbose_name='описание')
 
     def __str__(self):
-        print(f"{self.name}")
+        return f"{self.name}"
 
     class Meta:
         verbose_name = 'категория'
@@ -25,8 +25,21 @@ class Product(models.Model):
     updated_at = models.DateField(verbose_name='дата изменения')
 
     def __str__(self):
-        print(f"{self.name}, {self.cost}")
+        return f"{self.name}, {self.cost}"
 
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+
+
+class Contacts(models.Model):
+    name = models.CharField(max_length=200, verbose_name='имя')
+    phone = models.IntegerField(verbose_name='телефон')
+    email = models.EmailField(verbose_name='email')
+
+    def __str__(self):
+        return f"{self.name}, {self.phone}, {self.email}"
+
+    class Meta:
+        verbose_name = 'контакт'
+        verbose_name_plural = 'контакты'
