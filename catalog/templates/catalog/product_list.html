@@ -16,21 +16,38 @@
 
             <div class="col-md-12">
                 {% for object in object_list %}
-                <div class="card mb-4 box-shadow mx-auto text-center">
+                <div class="col-12 text-center">
                     <img class="card-img-top"
                          src='{{ object.image|mymedia }}'
                          alt="Card image cap">
-                    <div class="card-body">
-                        <p class="card-text">{{ object }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                            </div>
+                    <div class="card mb-4 box-shadow">
+                        <div class="card-header">
+                            <h4 class="my-0 font-weight-normal">{{ object|title }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <a href="{% url 'catalog:products' object.pk %}" type="button"
+                               class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
+                <div class="pagination">
+                <span class="step-links">
+                {% if object_list.has_previous %}
+            <a href="?page=1">&laquo; Первая</a>
+            <a href="?page={{ object_list.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ object_list.number }} из {{ object_list.paginator.num_pages }}.
+        </span>
+
+        {% if object_list.has_next %}
+            <a href="?page={{ object_list.next_page_number }}">Следующая</a>
+            <a href="?page={{ object_list.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </span>
+                </div>
             </div>
         </div>
     </div>

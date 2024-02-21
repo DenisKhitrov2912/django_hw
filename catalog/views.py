@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import ProductForm
 from .models import Product, Contacts
 
@@ -41,3 +42,18 @@ def add_product(request):
         form = ProductForm()
 
     return render(request, 'catalog/add_product.html', {'form': form})
+
+
+def product_list(request):
+    object_list = Product.objects.all()
+    paginator = Paginator(object_list, 1)
+
+    page = request.GET.get('page')
+    try:
+        objects = paginator.page(page)
+    except PageNotAnInteger:
+        objects = paginator.page(1)
+    except EmptyPage:
+        objects = paginator.page(paginator.num_pages)
+
+    return render(request, 'catalog/product_list.html', {'object_list': objects})
