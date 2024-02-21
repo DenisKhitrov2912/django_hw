@@ -18,14 +18,14 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name='имя')
     description = models.TextField(verbose_name='описание')
-    image = models.ImageField(upload_to='products/', verbose_name='превью', **NULLABLE)
+    image = models.ImageField(upload_to='catalog/', verbose_name='превью', **NULLABLE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     cost = models.IntegerField(verbose_name='цена')
     created_at = models.DateField(verbose_name='дата создания')
     updated_at = models.DateField(verbose_name='дата изменения')
 
     def __str__(self):
-        return f"{self.name}, {self.cost}"
+        return f"{self.name}, {self.description}, {self.image}, {self.category}, {self.cost}, {self.created_at}, {self.updated_at}"
 
     class Meta:
         verbose_name = 'продукт'
