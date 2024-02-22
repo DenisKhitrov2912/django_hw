@@ -1,11 +1,17 @@
 from django.urls import path
 
-from catalog.views import contacts, home, products, add_product, product_list
+from catalog.views import ContactTemplateView, ProductListView, ProductDetailView, ProductCreateView, ProductsListView, \
+    BlogWritingCreateView, BlogWritingDetailView, BlogWritingListView, BlogWritingUpdateView, BlogWritingDeleteView
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('contacts/', contacts, name='contacts'),
-    path('products/<int:pk>/', products, name='products'),
-    path('add_product/', add_product, name='add_product'),
-    path('product_list/', product_list, name='product_list')
+    path('', ProductListView.as_view(), name='home'),
+    path('contacts/', ContactTemplateView.as_view(), name='contacts'),
+    path('products/<int:pk>/', ProductDetailView.as_view(), name='products'),
+    path('add_product/', ProductCreateView.as_view(), name='add_product'),
+    path('products_list/', ProductsListView.as_view(), name='product_list'),
+    path('blogwrite/', BlogWritingCreateView.as_view(), name='blogwrite'),
+    path('blogwrite/<int:pk>', BlogWritingDetailView.as_view(), name='blogwrite_read'),
+    path('blogwrite/readall', BlogWritingListView.as_view(), name='blogwrite_readall'),
+    path('blogwrite/edit/<int:pk>', BlogWritingUpdateView.as_view(), name='blogwrite_edit'),
+    path('blogwrite/delete/<int:pk>', BlogWritingDeleteView.as_view(), name='blogwrite_delete')
 ]

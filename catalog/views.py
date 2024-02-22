@@ -1,59 +1,127 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import ProductForm
-from .models import Product, Contacts
+from django.urls import reverse_lazy
+
+from pytils.translit import slugify
+
+from .models import Product, Contacts, BlogWriting
+
+from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView, DeleteView
 
 
-def contacts(request):
-    contacts_fill = Contacts.objects.all()
-    if request.method == 'POST':
+class ContactTemplateView(TemplateView):
+    template_name = 'catalog/contacts_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contacts_fill = Contacts.objects.all()
+        context['contacts'] = contacts_fill
+        return context
+
+    def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         message = request.POST.get('message')
         print(name, phone, message)
-    return render(request, 'catalog/contacts.html', {'contacts': contacts_fill})
+        return render(request, self.template_name)
 
 
-def home(request):
-    latest_products = Product.objects.order_by('-created_at')[
-                      :2]  # выборка последних двух товаров (у меня их мало просто)
-    for product in latest_products:
-        print(product)
-    products_list = Product.objects.all()
-    context = {
-        'object_list': products_list
-    }
-    return render(request, 'catalog/home.html', context)
+class ProductListView(ListView):
+    model = Product
+    ordering = ['-created_at']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        latest_products = Product.objects.order_by('-created_at')[:2]
+        context['latest_products'] = latest_products
+        print(context['latest_products'])
+        return context
 
 
-def products(request, pk):
-    context = {
-        'object_list': Product.objects.filter(id=pk)
-    }
-    return render(request, 'catalog/products.html', context)
+class ProductDetailView(DetailView):
+    model = Product
 
 
-def add_product(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-    else:
-        form = ProductForm()
-
-    return render(request, 'catalog/add_product.html', {'form': form})
+class ProductCreateView(CreateView):
+    model = Product
+    fields = (
+        'name', 'description', 'image', 'category', 'cost', 'created_at',
+        'updated_at',)  # Поля для заполнения при создании
+    success_url = reverse_lazy('catalog:home')
 
 
-def product_list(request):
-    object_list = Product.objects.all()
-    paginator = Paginator(object_list, 1)
+class ProductsListView(ProductListView):
+    template_name = 'catalog/products_list.html'
+    paginate_by = 1
 
-    page = request.GET.get('page')
-    try:
-        objects = paginator.page(page)
-    except PageNotAnInteger:
-        objects = paginator.page(1)
-    except EmptyPage:
-        objects = paginator.page(paginator.num_pages)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object_list = self.get_queryset()
+        paginator = Paginator(object_list, self.paginate_by)
+        page = self.request.GET.get('page')
+        try:
+            objects = paginator.page(page)
+        except PageNotAnInteger:
+            objects = paginator.page(1)
+        except EmptyPage:
+            objects = paginator.page(paginator.num_pages)
+        context['object_list'] = objects
+        return context
 
-    return render(request, 'catalog/product_list.html', {'object_list': objects})
+
+class BlogWritingCreateView(CreateView):
+    model = BlogWriting
+    fields = (
+        'title', 'context', 'image', 'created_at')
+    success_url = reverse_lazy('catalog:blogwrite_readall')
+
+    def form_valid(self, form):
+        if form.is_valid:
+            new_blog = form.save()
+            new_blog.slug = slugify(new_blog.title)
+            new_blog.save()
+
+        return super().form_valid(form)
+
+
+class BlogWritingDetailView(DetailView):
+    model = BlogWriting
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        self.object.count_of_views += 1
+        self.object.save()
+        if self.object.count_of_views == 3:
+            send_mail(
+                'Поздравляем с достижением 3 просмотров!',
+                'Ваша статья достигла 3 просмотров. Поздравляем!',
+                settings.EMAIL_HOST_USER,
+                ['hitrov.95@yandex.ru'],
+                fail_silently=False,
+            )
+        return self.object
+
+
+class BlogWritingListView(ListView):
+    model = BlogWriting
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(is_published=True)
+        return queryset
+
+
+class BlogWritingUpdateView(UpdateView):
+    model = BlogWriting
+    fields = (
+        'title', 'context', 'image', 'created_at')
+
+    def get_success_url(self):
+        return reverse_lazy('catalog:blogwrite_read', kwargs={'pk': self.object.pk})
+
+
+class BlogWritingDeleteView(DeleteView):
+    model = BlogWriting
+    success_url = reverse_lazy('catalog:blogwrite_readall')

@@ -7,7 +7,7 @@
 
     <section class="jumbotron text-center">
         <div class="container">
-            <h1 class="jumbotron-heading">Наши товары</h1>
+            <h1 class="jumbotron-heading">Выбранный блог {{ object.slug }} </h1>
         </div>
     </section>
 
@@ -15,13 +15,10 @@
         <div class="container">
 
             <div class="col-md-12">
-                {% for object in object_list %}
                 <div class="card mb-4 box-shadow mx-auto text-center">
-                    <img class="card-img-top"
-                         src='{{ object.image|mymedia }}'
-                         alt="Card image cap">
                     <div class="card-body">
                         <p class="card-text">{{ object }}</p>
+                        <p>Просмотры: {{ object.count_of_views }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
@@ -30,7 +27,6 @@
                         </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
