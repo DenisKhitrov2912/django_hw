@@ -47,8 +47,14 @@ class ProductDetailView(DetailView):
 class ProductCreateView(CreateView):
     model = Product
     fields = (
-        'name', 'description', 'image', 'category', 'cost', 'created_at',
-        'updated_at',)  # Поля для заполнения при создании
+        'name', 'description', 'image', 'category', 'cost',)
+    success_url = reverse_lazy('catalog:home')
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    fields = (
+        'name', 'description', 'image', 'category', 'cost',)
     success_url = reverse_lazy('catalog:home')
 
 
@@ -74,7 +80,7 @@ class ProductsListView(ProductListView):
 class BlogWritingCreateView(CreateView):
     model = BlogWriting
     fields = (
-        'title', 'context', 'image', 'created_at')
+        'title', 'context', 'image',)
     success_url = reverse_lazy('catalog:blogwrite_readall')
 
     def form_valid(self, form):
@@ -116,7 +122,7 @@ class BlogWritingListView(ListView):
 class BlogWritingUpdateView(UpdateView):
     model = BlogWriting
     fields = (
-        'title', 'context', 'image', 'created_at')
+        'title', 'context', 'image',)
 
     def get_success_url(self):
         return reverse_lazy('catalog:blogwrite_read', kwargs={'pk': self.object.pk})

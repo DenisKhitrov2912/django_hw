@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -21,8 +22,8 @@ class Product(models.Model):
     image = models.ImageField(upload_to='catalog/', verbose_name='превью', **NULLABLE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     cost = models.IntegerField(verbose_name='цена')
-    created_at = models.DateField(verbose_name='дата создания')
-    updated_at = models.DateField(verbose_name='дата изменения')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='дата изменения', **NULLABLE)
 
     def __str__(self):
         return f"{self.name}, {self.description}, {self.image}, {self.category}, {self.cost}, {self.created_at}, {self.updated_at}"
@@ -30,6 +31,10 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+
+    def save(self, *args, **kwargs):
+        self.updated_at = timezone.now()
+        super(Product, self).save(*args, **kwargs)
 
 
 class Contacts(models.Model):
@@ -50,7 +55,7 @@ class BlogWriting(models.Model):
     slug = models.CharField(max_length=100, verbose_name='slug', **NULLABLE)
     context = models.TextField(verbose_name='описание', **NULLABLE)
     image = models.ImageField(upload_to='catalog/', verbose_name='превью', **NULLABLE)
-    created_at = models.DateField(verbose_name='дата создания')
+    created_at = models.DateField(auto_now_add=True, verbose_name='дата создания')
     is_published = models.BooleanField(default=True, verbose_name='опубликовано')
     count_of_views = models.IntegerField(default=0, verbose_name='количество просмотров')
 

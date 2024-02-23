@@ -7,7 +7,12 @@
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
+                {% if object %}
+                <button type="submit">Изменить продукт</button>
+                {% else %}
                 <button type="submit">Добавить продукт</button>
+                {% endif %}
+                <a href="{% url 'catalog:home' %}" class="btn btn-warning">Отмена</a>
             </form>
         </div>
     </div>
