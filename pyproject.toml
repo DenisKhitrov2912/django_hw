@@ -3,7 +3,6 @@ name = "pythonproject2"
 version = "0.1.0"
 description = ""
 authors = ["Khitrov <Hitrov.95@yandex.ru>"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
