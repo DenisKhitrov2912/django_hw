@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.core.mail import send_mail
+from django.forms import inlineformset_factory
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse_lazy
 
 from pytils.translit import slugify
 
-from .models import Product, Contacts, BlogWriting
+from .forms import ProductForm, VersionForm
+from .models import Product, Contacts, BlogWriting, Version
 
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView, DeleteView
 
@@ -46,16 +48,35 @@ class ProductDetailView(DetailView):
 
 class ProductCreateView(CreateView):
     model = Product
-    fields = (
-        'name', 'description', 'image', 'category', 'cost',)
+    form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
 
 
 class ProductUpdateView(UpdateView):
     model = Product
-    fields = (
-        'name', 'description', 'image', 'category', 'cost',)
+    form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
+        if self.request.method == 'POST':
+            context_data['formset'] = VersionFormset(self.request.POST, instance=self.object)
+        else:
+            context_data['formset'] = VersionFormset(instance=self.object)
+        return context_data
+
+    def form_valid(self, form):
+        formset = self.get_context_data()['formset']
+        self.object = form.save()
+        if formset.is_valid():
+            num_active_versions = [form for form in formset if form.cleaned_data.get('is_current')]
+            if len(num_active_versions) > 1:
+                form.add_error(None, 'Выберите только одну версию прордукта!')
+                return self.form_invalid(form)
+            formset.instance = self.object
+            formset.save()
+        return super().form_valid(form)
 
 
 class ProductsListView(ProductListView):

@@ -12,9 +12,17 @@
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">{{ object|title|slice:":20" }}</h4>
+                    {% if object.version_set.all %}
+                    {% for prod in object.version_set.all %}
+                    {% if prod.is_current %}
+                    <p class="card-text">Версия: {{ prod.version_name }}({{ prod.version_number }})</p>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'catalog:products' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
+                    <a href="{% url 'catalog:products' object.pk %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
                 </div>
                 <div class="card-body">
                     <a href="{% url 'catalog:product_edit' object.pk  %}" type="button"

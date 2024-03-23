@@ -20,7 +20,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name='имя')
     description = models.TextField(verbose_name='описание')
     image = models.ImageField(upload_to='catalog/', verbose_name='превью', **NULLABLE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='категория')
     cost = models.IntegerField(verbose_name='цена')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='дата изменения', **NULLABLE)
@@ -35,6 +35,9 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
         super(Product, self).save(*args, **kwargs)
+
+    def active_version(self):
+        return self.version_set.filter(is_current=True).first()
 
 
 class Contacts(models.Model):
@@ -65,3 +68,17 @@ class BlogWriting(models.Model):
     class Meta:
         verbose_name = 'блог'
         verbose_name_plural = 'блоги'
+
+
+class Version(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='продукт')
+    version_number = models.CharField(max_length=50, verbose_name='номер версии')
+    version_name = models.CharField(max_length=200, verbose_name='название версии')
+    is_current = models.BooleanField(default=False, verbose_name='признак текущей версии')
+
+    def __str__(self):
+        return f"{self.product.name} - {self.version_number}"
+
+    class Meta:
+        verbose_name = 'Версия'
+        verbose_name_plural = 'Версии'
