@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.forms import inlineformset_factory
 from django.shortcuts import render
@@ -30,9 +31,10 @@ class ContactTemplateView(TemplateView):
         return render(request, self.template_name)
 
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     ordering = ['-created_at']
+    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -42,20 +44,30 @@ class ProductListView(ListView):
         return context
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
+    login_url = 'users:login'
 
 
-class ProductCreateView(CreateView):
-    model = Product
-    form_class = ProductForm
-    success_url = reverse_lazy('catalog:home')
-
-
-class ProductUpdateView(UpdateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
+    login_url = 'users:login'
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+
+        return super().form_valid(form)
+
+
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    model = Product
+    form_class = ProductForm
+    success_url = reverse_lazy('catalog:home')
+    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -76,12 +88,17 @@ class ProductUpdateView(UpdateView):
                 return self.form_invalid(form)
             formset.instance = self.object
             formset.save()
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+
         return super().form_valid(form)
 
 
 class ProductsListView(ProductListView):
     template_name = 'catalog/products_list.html'
     paginate_by = 1
+    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

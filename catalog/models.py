@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
+
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -24,9 +26,10 @@ class Product(models.Model):
     cost = models.IntegerField(verbose_name='цена')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='дата изменения', **NULLABLE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name="владелец", **NULLABLE)
 
     def __str__(self):
-        return f"{self.name}, {self.description}, {self.image}, {self.category}, {self.cost}, {self.created_at}, {self.updated_at}"
+        return f"{self.name}, {self.description}, {self.owner}, {self.category}, {self.cost}, {self.created_at}, {self.updated_at}"
 
     class Meta:
         verbose_name = 'продукт'
