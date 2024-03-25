@@ -10,12 +10,10 @@ from django.core.mail import send_mail
 
 from django.http import Http404
 from django.shortcuts import redirect
-from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, FormView, TemplateView
 
 from users.forms import UserRegisterForm, UserForm, UserPasswordResetForm
 from users.models import User
-
 from django.urls import reverse_lazy
 
 
@@ -87,3 +85,4 @@ class UserPasswordResetView(FormView):
 
 class UserPasswordSentView(TemplateView):
     template_name = 'users/user_password_sent.html'
+

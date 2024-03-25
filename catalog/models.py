@@ -27,6 +27,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='дата изменения', **NULLABLE)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name="владелец", **NULLABLE)
+    is_published = models.BooleanField(default=False, verbose_name='публикация')
 
     def __str__(self):
         return f"{self.name}, {self.description}, {self.owner}, {self.category}, {self.cost}, {self.created_at}, {self.updated_at}"
@@ -34,6 +35,21 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+
+        permissions = [
+            (
+                'set_published',
+                'Can publish products'
+            ),
+            (
+                'change_description',
+                'Can change description'
+            ),
+            (
+                'change_category',
+                'Can change category'
+            )
+        ]
 
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
@@ -71,6 +87,13 @@ class BlogWriting(models.Model):
     class Meta:
         verbose_name = 'блог'
         verbose_name_plural = 'блоги'
+
+        permissions = [
+            (
+                'set_published',
+                'Can publish blogs'
+            )
+        ]
 
 
 class Version(models.Model):

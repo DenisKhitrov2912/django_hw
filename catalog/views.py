@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.forms import inlineformset_factory
 from django.shortcuts import render
@@ -63,11 +64,20 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
     login_url = 'users:login'
+    permission_required = ('catalog.set_published', 'catalog.change_description', 'catalog.change_category',)
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user:
+            raise PermissionDenied
+        else:
+            print(self.request.user.groups)
+            return self.object
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -115,11 +125,12 @@ class ProductsListView(ProductListView):
         return context
 
 
-class BlogWritingCreateView(CreateView):
+class BlogWritingCreateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, CreateView):
     model = BlogWriting
     fields = (
-        'title', 'context', 'image',)
+        'title', 'context', 'image', 'is_published',)
     success_url = reverse_lazy('catalog:blogwrite_readall')
+    permission_required = 'catalog.add_blogwriting'
 
     def form_valid(self, form):
         if form.is_valid:
@@ -128,6 +139,9 @@ class BlogWritingCreateView(CreateView):
             new_blog.save()
 
         return super().form_valid(form)
+
+    def test_func(self):
+        return self.request.user.is_content_manager
 
 
 class BlogWritingDetailView(DetailView):
@@ -151,21 +165,29 @@ class BlogWritingDetailView(DetailView):
 class BlogWritingListView(ListView):
     model = BlogWriting
 
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        queryset = queryset.filter(is_published=True)
-        return queryset
+    # def get_queryset(self, *args, **kwargs):
+    #     queryset = super().get_queryset(*args, **kwargs)
+    #     queryset = queryset.filter(is_published=True)
+    #     return queryset
 
 
-class BlogWritingUpdateView(UpdateView):
+class BlogWritingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
     model = BlogWriting
     fields = (
-        'title', 'context', 'image',)
+        'title', 'context', 'image', 'is_published',)
+    permission_required = 'catalog.change_blogwriting'
 
     def get_success_url(self):
         return reverse_lazy('catalog:blogwrite_read', kwargs={'pk': self.object.pk})
 
+    def test_func(self):
+        return self.request.user.is_content_manager
 
-class BlogWritingDeleteView(DeleteView):
+
+class BlogWritingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, DeleteView):
     model = BlogWriting
     success_url = reverse_lazy('catalog:blogwrite_readall')
+    permission_required = 'catalog.delete_blogwriting'
+
+    def test_func(self):
+        return self.request.user.is_content_manager

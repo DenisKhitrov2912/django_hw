@@ -22,14 +22,18 @@
                     <a href="{% url 'catalog:blogwrite_read' object.pk  %}" type="button"
                        class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
                 </div>
+                {% if perms.catalog.change_blogwriting and request.user.is_content_manager %}
                 <div class="card-body">
                     <a href="{% url 'catalog:blogwrite_edit' object.pk  %}" type="button"
                        class="btn btn-lg btn-block btn-outline-primary">Изменить</a>
                 </div>
+                {% endif %}
+                {% if perms.catalog.delete_blogwriting and request.user.is_content_manager %}
                 <div class="card-body">
                     <a href="{% url 'catalog:blogwrite_delete' object.pk  %}" type="button"
                        class="btn btn-lg btn-block btn-outline-primary">Удалить</a>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
