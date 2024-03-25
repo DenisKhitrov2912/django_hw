@@ -88,13 +88,6 @@ class BlogWriting(models.Model):
         verbose_name = 'блог'
         verbose_name_plural = 'блоги'
 
-        permissions = [
-            (
-                'set_published',
-                'Can publish blogs'
-            )
-        ]
-
 
 class Version(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='продукт')
