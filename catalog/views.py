@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 
 from pytils.translit import slugify
 
-from .forms import ProductForm, VersionForm
+from .forms import ProductForm, VersionForm, PermProductForm
 from .models import Product, Contacts, BlogWriting, Version
 
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView, DeleteView
@@ -71,12 +71,18 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
     login_url = 'users:login'
     permission_required = ('catalog.set_published', 'catalog.change_description', 'catalog.change_category',)
 
+    def get_form_class(self):
+        if self.request.user.has_perm('catalog.set_published') and self.request.user.has_perm(
+                'catalog.change_description') and self.request.user.has_perm(
+            'catalog.change_category') and not self.request.user.is_superuser:
+            return PermProductForm
+        return ProductForm
+
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
+        if self.object.owner != self.request.user and not self.request.user.is_superuser:
             raise PermissionDenied
         else:
-            print(self.request.user.groups)
             return self.object
 
     def get_context_data(self, **kwargs):

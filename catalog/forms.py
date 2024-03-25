@@ -14,7 +14,7 @@ class StyleFormMixin:
 class ProductForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = Product
-        exclude = ('owner', )
+        exclude = ('owner',)
 
     def clean_name(self):
         cleaned_data = self.cleaned_data.get('name')
@@ -29,6 +29,12 @@ class ProductForm(StyleFormMixin, forms.ModelForm):
                             'радар']:
             raise forms.ValidationError('Неправильное описание!')
         return cleaned_data
+
+
+class PermProductForm(StyleFormMixin, forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ('is_published', 'description', 'category',)
 
 
 class VersionForm(StyleFormMixin, forms.ModelForm):
