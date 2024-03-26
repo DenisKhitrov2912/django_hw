@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4zx6&g34z!q@auo&9-3iir(n9$s(79l)%c3aggg2p+4nnrm3v^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == "True"
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -144,7 +144,6 @@ EMAIL_HOST_PASSWORD = os.getenv('YA_PASSWORD')
 AUTH_USER_MODEL = 'users.User'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
-
 
 CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
 if CACHE_ENABLED:
