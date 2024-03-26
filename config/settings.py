@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    #"django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #"django.middleware.cache.FetchFromCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -145,7 +145,6 @@ AUTH_USER_MODEL = 'users.User'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
-LOGIN_URL = 'users:login'
 
 CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
 if CACHE_ENABLED:
