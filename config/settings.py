@@ -148,5 +148,3 @@ EMAIL_HOST_PASSWORD = os.getenv('YA_PASSWORD')
 AUTH_USER_MODEL = 'users.User'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
-
-LOGIN_URL = 'users:login'
