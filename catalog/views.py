@@ -10,9 +10,11 @@ from django.urls import reverse_lazy
 from pytils.translit import slugify
 
 from .forms import ProductForm, VersionForm, PermProductForm
-from .models import Product, Contacts, BlogWriting, Version
+from .models import Product, Contacts, BlogWriting, Version, Category
 
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView, DeleteView
+
+from .services import get_categories
 
 
 class ContactTemplateView(TemplateView):
@@ -197,3 +199,7 @@ class BlogWritingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, UserPas
 
     def test_func(self):
         return self.request.user.is_content_manager
+
+
+def category_list_view(request):
+    return render(request, 'catalog/category_list.html', get_categories())
