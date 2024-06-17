@@ -1,0 +1,38 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Продукты</h1>
+</div>
+
+<div class="container">
+    <div class="row text-center">
+        {% for object in object_list %}
+        <div class="col-3">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ object|title|slice:":20" }}</h4>
+                    {% if object.version_set.all %}
+                    {% for prod in object.version_set.all %}
+                    {% if prod.is_current %}
+                    <p class="card-text">Версия: {{ prod.version_name }}({{ prod.version_number }})</p>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'catalog:products' object.pk %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
+                </div>
+                <div class="card-body">
+                    {% if object.owner == request.user and perms.catalog.set_published and perms.catalog.change_description and perms.catalog.change_category or request.user.is_superuser %}
+                    <a href="{% url 'catalog:product_edit' object.pk  %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Изменить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

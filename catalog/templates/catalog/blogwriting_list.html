@@ -1,0 +1,42 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Блоги</h1>
+</div>
+
+<div class="container">
+    <div class="row text-center">
+        {% for object in object_list %}
+        <div class="col-3">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ object|title|slice:":20" }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if object.is_published %}
+                    <p>Опубликовано</p>
+                    {% else %}
+                    <p>Не опубликовано</p>
+                    {% endif %}
+                    <a href="{% url 'catalog:blogwrite_read' object.pk  %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Перейти</a>
+                </div>
+                {% if perms.catalog.change_blogwriting and request.user.is_content_manager %}
+                <div class="card-body">
+                    <a href="{% url 'catalog:blogwrite_edit' object.pk  %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Изменить</a>
+                </div>
+                {% endif %}
+                {% if perms.catalog.delete_blogwriting and request.user.is_content_manager %}
+                <div class="card-body">
+                    <a href="{% url 'catalog:blogwrite_delete' object.pk  %}" type="button"
+                       class="btn btn-lg btn-block btn-outline-primary">Удалить</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
